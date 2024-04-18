@@ -1,0 +1,29 @@
+name: Release
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Changelog
+        id: changelog
+        uses: TriPSs/conventional-changelog-action@v4.1.0
+        with:
+          github-token: ${{ secrets.github_token }}
+          skip-on-empty: "false"
+          version-file: "./pyproject.toml"
+          version-path: "project.version"
+
+      - name: Create Release
+        uses: ncipollo/release-action@v1
+        with:
+          generateReleaseNotes: true
+          tag: ${{ steps.changelog.outputs.tag }}
+          commit: main
